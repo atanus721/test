@@ -1,0 +1,27 @@
+.circle-green {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;    
+    background: rgb(0, 255, 128);
+    color: rgb(0, 255, 128);
+}
+.circle-orange {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;    
+    background: rgb(255, 128, 0);
+    color: #fff;
+}
+.circle-red {
+  margin: 2px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;    
+    background: rgb(255, 0, 0);
+    color: #fff;
+}
