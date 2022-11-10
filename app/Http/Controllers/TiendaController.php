@@ -24,7 +24,7 @@ class TiendaController extends Controller
      */
     public function index()
     {
-        $tiendas = Tienda::sortable()->paginate(60);
+        $tiendas = Tienda::paginate(60);
 
         return view('tienda.index', compact('tiendas'))
             ->with('i', (request()->input('page', 1) - 1) * $tiendas->perPage());
@@ -182,10 +182,12 @@ class TiendaController extends Controller
                         }
                         unset($key);
                         break;
-                    case (str_starts_with($archivo, 'O_STR') && str_contains($archivo, 'RM') && (str_ends_with($archivo, ".txt") || str_ends_with($archivo, ".TXT"))):
+                        /*
+                         * INICIA Anterior nomenclatura
+                         */
+                    case (str_starts_with($archivo, 'O_STR') && str_contains($archivo, 'RM') && (str_ends_with($archivo, ".txt") || str_ends_with($archivo, ".TXT")) && (substr($archivo, 16, 2) == '22')):
                         $materiales = new Embarquemateriale();
-                        
-                        
+
                         if ($tiendadestino = Tienda::where('id_sap',intval(substr($archivo, 6, 3)))->first()) {
                             $materiales->id_tienda = $tiendadestino->id;
                         }
@@ -204,6 +206,36 @@ class TiendaController extends Controller
                         }
                         unset($key);
                         break;
+                        /*
+                         * TERMINA Anterior nomenclatura
+                         */
+                        /*
+                         * INICIA Nueva nomenclatura
+                         */
+                    case (str_starts_with($archivo, 'O_STR') && str_contains($archivo, 'RM') && (str_ends_with($archivo, ".txt") || str_ends_with($archivo, ".TXT")) && (substr($archivo, 12, 4) == '2022')):
+                        $materiales = new Embarquemateriale();
+                        
+                        if ($tiendadestino = Tienda::where('id_sap',intval(substr($archivo, 6, 3)))->first()) {
+                            $materiales->id_tienda = $tiendadestino->id;
+                        }
+                        
+                        $materiales->fecha = substr($archivo, 12, 4)."-".substr($archivo, 16, 2)."-".substr($archivo, 18, 2)." 00:00:00";
+                        $materiales->archivo = $archivo;
+                        
+                        if (($materiales_pendientes->isNotEmpty())) {
+                            if($key = $materiales_pendientes->firstWhere('archivo',$materiales->archivo)){
+                                $materiales_pendientes = $materiales_pendientes->except($key->id);
+                            }
+                        }
+                        
+                        if (Embarquemateriale::where('archivo',$materiales->archivo)->doesntExist()){
+                            $materiales->save();
+                        }
+                        unset($key);
+                        break;
+                        /*
+                         * TERMINA Nueva nomenclatura
+                         */
                     case (str_starts_with($archivo, 'O_STR') && !str_contains($archivo, 'RM') && (str_ends_with($archivo, ".txt") || str_ends_with($archivo, ".TXT"))):
                         $mercancia = new Embarquemercancia();
                         
