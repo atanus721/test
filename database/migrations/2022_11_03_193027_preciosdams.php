@@ -13,17 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tiendas', function (Blueprint $table) {
+        Schema::create('preciosdams', function (Blueprint $table) {
             $table->id();
             $table->integer("id_sap",FALSE,TRUE);
-            $table->string("nombre");
-            $table->string("usuarioftp");
-            $table->string("passwdftp");
+            $table->string("sku");
+            $table->decimal("precioa");
+            $table->decimal("preciob");
+            $table->decimal("precioc");
+            $table->decimal("preciod");
+            $table->date("fecha");
             $table->timestamps();
-        });
-        
-        Schema::table('tiendas', function($table) {
-            $table->unique('id_sap');
+            
+            $table->foreign("id_sap")->references("id_sap")->on("tiendas")->cascadeOnDelete();
         });
     }
 
@@ -34,7 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        //Schema::dropIfExists('tiendas');
+        Schema::dropIfExists('preciosdams');
     }
-    
 };
