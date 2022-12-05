@@ -24,7 +24,7 @@ class TiendaController extends Controller
      */
     public function index()
     {
-        $tiendas = Tienda::paginate(60);
+        $tiendas = Tienda::sortable()->paginate(60);
 
         return view('tienda.index', compact('tiendas'))
             ->with('i', (request()->input('page', 1) - 1) * $tiendas->perPage());
