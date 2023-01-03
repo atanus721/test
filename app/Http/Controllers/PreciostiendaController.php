@@ -18,10 +18,9 @@ class PreciostiendaController extends Controller
      */
     public function index()
     {
-        $preciostiendas = Preciostienda::paginate();
+        $preciostiendas = Preciostienda::all();
 
-        return view('preciostienda.index', compact('preciostiendas'))
-            ->with('i', (request()->input('page', 1) - 1) * $preciostiendas->perPage());
+        return view('preciostienda.index', compact('tienda'))->with('i', $preciostiendas);           
     }
 
     /**

@@ -11,8 +11,12 @@
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <!-- Datatable -->
+    @yield('css')
+    <!-- Bootstrap -->
+    <!--link rel="stylesheet" href="{{ asset('bootstrap.mins.css') }}"-->
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-	<link rel="stylesheet" href="{{ asset('custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('custom.css') }}">
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
@@ -70,5 +74,6 @@
             @yield('content')
         </main>
     </div>
+    @yield('js')
 </body>
 </html>

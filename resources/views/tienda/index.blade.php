@@ -23,7 +23,7 @@
 							</div>
 
                              <div class="float-right">
-                             	@if (Auth::user()->id == 1)
+                             	@if (Auth::user()->id == 15)
                                 <a href="{{ route('tiendas.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
                                   {{ __('Nueva tienda') }}
                                 </a>
@@ -42,8 +42,7 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>@sortablelink('id_sap', 'No')</th>
-                                        
+                                        <th>@sortablelink('id_sap', 'No')</th>                                        
 										<th>@sortablelink('nombre', 'Nombre')</th>
 										<th>$</th>
 										<th>TE</th>

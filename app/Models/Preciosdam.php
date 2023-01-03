@@ -53,5 +53,4 @@ class Preciosdam extends Model
         return $this->hasOne('App\Models\Tienda', 'id_sap', 'id_sap');
     }
     
-
 }

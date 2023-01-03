@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Kyslik\ColumnSortable\Sortable;
@@ -20,6 +21,7 @@ use Kyslik\ColumnSortable\Sortable;
  * @property Embarquemateriale[] $embarquemateriales
  * @property Embarquemercancia[] $embarquemercancias
  * @property Precio[] $precios
+ * @property Preciotiendas[] $preciostiendas
  * @property Traspaso[] $traspasos
  * @property Traspaso[] $traspasos
  * @package App
@@ -35,7 +37,6 @@ class Tienda extends Model
 		'usuarioftp' => 'required',
 		'passwdftp' => 'required',
     ];
-    
 
     protected $perPage = 20;
 
@@ -73,6 +74,16 @@ class Tienda extends Model
         return $this->hasMany('App\Models\Precio', 'id_tienda', 'id');
     }
     
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comparativostiendas($id_sap)
+    {
+        $comparativos = DB::select('CALL sp_difsucursal(?)', array($id_sap));
+        $cntdiferen = count($comparativos);
+        return $cntdiferen;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

@@ -1,5 +1,14 @@
 @extends('layouts.app')
+@section('css')
+	<link rel="stylesheet" href="{{ asset('datatables\datatables.min.css') }}">
+	<!--link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"-->
+	<!--link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="style"-->
 
+    <!-- searchPanes -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/searchpanes/1.0.1/css/searchPanes.dataTables.min.css">
+    <!-- select -->
+    <link href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css">
+@endsection
 @section('template_title')
     {{ $tienda->name ?? 'Show Tienda' }}
 @endsection
@@ -63,7 +72,46 @@
                         	</div>
                             @Endif
                         </div>
-                        <br />
+						<br>
+						<div class="card">
+							<div class="card-header"><strong>DIFERENCIAS DE PRECIOS ( $ )</strong></div>
+							@if (count($diffechas) > 0)
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="thead">
+                                    	<tr>
+                                    		<th>TIENDA ORIGEN</th>
+                                    		<th>TOTAL DE DIFERENCIAS</th>
+                                    		<th>FECHA DE DETECCI&Oacute;N</th>
+											<th></th>
+                                    	</tr>
+                                    </thead>
+									<tbody>
+										@foreach ($diffechas as $dif)
+										<tr>
+											<td>{{ $tienda->nombre }}</td>
+											<td>{{ $dif->diftotal }}</td>
+											<td>{{ $dif->fecha_dam }}</td>
+											<td>
+												<!--form action="" method="GET"-->                                             
+												@csrf					
+												@if (Auth::user()->id == 15)
+													<a class="btn btn-sm btn-success " href="{{ route('tiendas.detalle',$tienda->id) }}"><i class="fa fa-fw fa-eye"></i> Ver</a>
+												@endif    
+												<!--/form-->                                            
+                                            </td>
+										</tr>
+										@endforeach
+									</tbody>
+								</table>
+							</div>
+							@Else
+                            <div class="row">
+                        		<span class="h5 text-center text-success">Sin diferencias.</span>
+                        	</div>
+                            @Endif
+						</div>
+						<br>
                         <div class="card">
                         	<div class="card-header"><strong>TRASPASOS ENTRANTES ( TE )</strong></div>
                         	@if ($tienda->traspasosdestino()->count() > 0)
@@ -256,4 +304,43 @@
             </div>
         </div>
     </section>
+@endsection
+
+@section('js')
+<!--script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script-->
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- searchPanes   -->
+<script src="https://cdn.datatables.net/searchpanes/1.0.1/js/dataTables.searchPanes.min.js"></script>
+<!-- select -->
+<script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script> 
+
+<script>
+$(document).ready(function () {
+    $('#tienda').DataTable({
+		"language": {
+			"url": 'https://cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json'
+		},
+		searchPanes:{
+			cascadePanes:true,
+			dtOpts:{
+				dom:'tp',
+				paging:'true',
+				searching:false
+			}
+		},
+		dom:'Pfrtip',
+		columnDefs:[{
+			searchPanes:{
+				show:false
+			},
+			targets:[5]
+		}],
+		"lengthMenu": [[5, 10, 20, -1], [5, 10, 20, 'Todos']],
+		"columnDefs": [ {orderable: false, targets: [1,2,3,4]}, { targets: [0,5] } ]
+	});
+});
+</script>
 @endsection

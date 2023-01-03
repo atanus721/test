@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Tienda;
 use Illuminate\Http\Request;
 
@@ -10,6 +11,12 @@ use App\Models\Traspaso;
 use App\Models\Embarquemateriale;
 use App\Models\Embarquemercancia;
 use App\Models\Devolucione;
+use Illuminate\Notifications\Action;
+use Illuminate\Support\Facades\Storage;
+use PhpParser\Node\Stmt\While_;
+use Yajra\DataTables\Contracts\DataTable;
+use Yajra\DataTables\DataTables;
+use ZipArchive;
 
 /**
  * Class TiendaController
@@ -22,13 +29,19 @@ class TiendaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
     {
-        $tiendas = Tienda::sortable()->paginate(60);
+        $tiendas = Tienda::all();
+        //$tiendas = Tienda::paginate();
 
-        return view('tienda.index', compact('tiendas'))
-            ->with('i', (request()->input('page', 1) - 1) * $tiendas->perPage());
+        return view('tienda.paginado', compact('tiendas'))->with('i', $tiendas);
     }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
 
     /**
      * Show the form for creating a new resource.
@@ -66,8 +79,26 @@ class TiendaController extends Controller
     public function show($id)
     {
         $tienda = Tienda::find($id);
+        
+        $diffechas = DB::select('CALL sp_diffechas(?)', array($tienda->id_sap));
+        return view('tienda.show', compact('tienda'))->with('diffechas',$diffechas);
+        //return view('tienda.show', compact('tienda'));
+    }
 
-        return view('tienda.show', compact('tienda'));
+    /**
+     * Display the specified resource.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function detalle($id)
+    {
+        $tienda = Tienda::find($id);
+        
+        $comparativos = DB::select('CALL sp_allsuc(?)', array($tienda->id_sap));
+        //$cntdiferen = count($comparativos);
+
+        return view('tienda.difprecios', compact('tienda'))->with('compara',$comparativos);
     }
 
     /**
@@ -112,7 +143,22 @@ class TiendaController extends Controller
         return redirect()->route('tiendas.index')
             ->with('success', 'Tienda deleted successfully');
     }
-    
+        /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function paginar($id)
+    {
+        $tienda = Tienda::find($id);
+        
+        //$comparativos = DB::select('CALL sp_difsucursal(?)', array($tienda->id_sap));
+        //$cntdiferen = count($comparativos);
+
+        //return view('tienda.difprecios', compact('tienda'))->with('compara',$comparativos);
+        return view('tienda.difprecios', compact('tienda'));
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -122,13 +168,12 @@ class TiendaController extends Controller
     public function actualizar($id)
     {
         /*
-         * Inicia actualización
+         * Inicia actualizaciï¿½n
          */
         $tienda = Tienda::find($id);
         $ftpConn = ftp_connect("ftp.mrtienda.com") or die("ERROR DE FTP.");
         if(@ftp_login($ftpConn,$tienda->usuarioftp,$tienda->passwdftp)){
-            $contents = ftp_nlist($ftpConn, ".");
-            
+            $contents = ftp_nlist($ftpConn, ".");          
             
             $precios_pendientes = $tienda->precios()->get();
             $traspasos_pendientes = $tienda->traspasosdestino()->get();
@@ -182,9 +227,7 @@ class TiendaController extends Controller
                         }
                         unset($key);
                         break;
-                        /*
-                         * INICIA Anterior nomenclatura
-                         */
+
                     case (str_starts_with($archivo, 'O_STR') && str_contains($archivo, 'RM') && (str_ends_with($archivo, ".txt") || str_ends_with($archivo, ".TXT")) && (substr($archivo, 16, 2) == '22')):
                         $materiales = new Embarquemateriale();
 
@@ -206,12 +249,7 @@ class TiendaController extends Controller
                         }
                         unset($key);
                         break;
-                        /*
-                         * TERMINA Anterior nomenclatura
-                         */
-                        /*
-                         * INICIA Nueva nomenclatura
-                         */
+
                     case (str_starts_with($archivo, 'O_STR') && str_contains($archivo, 'RM') && (str_ends_with($archivo, ".txt") || str_ends_with($archivo, ".TXT")) && (substr($archivo, 12, 4) == '2022')):
                         $materiales = new Embarquemateriale();
                         
@@ -233,9 +271,7 @@ class TiendaController extends Controller
                         }
                         unset($key);
                         break;
-                        /*
-                         * TERMINA Nueva nomenclatura
-                         */
+
                     case (str_starts_with($archivo, 'O_STR') && !str_contains($archivo, 'RM') && (str_ends_with($archivo, ".txt") || str_ends_with($archivo, ".TXT"))):
                         $mercancia = new Embarquemercancia();
                         
@@ -292,10 +328,10 @@ class TiendaController extends Controller
             $devoluciones_pendientes->map->delete();
             
             $tienda->updated_at = date("Y-m-d H:i:s");
-            $tienda->update();
+            $tienda->update(); 
             
             /*
-             * Termina actualización
+             * Termina actualizaciï¿½n
              */
         }
         else{

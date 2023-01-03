@@ -1,0 +1,249 @@
+		"dom": 'Bfrtilp',
+		"buttons":[{
+			"extend":'pdfHtml5',
+			"text": '<i class="fas fa-file-pdf"></i>'
+			"titleAttr": 'Exportar a PDF'
+			"className": 'btn btn-warning'
+		}],
+
+SELECT * FROM `preciosdams` WHERE id_sap=6 and sku='001A001';
+   
+ public function actualizarrr($id)
+    {
+        $tienda = Tienda::find($id);
+        $ftpConn = ftp_connect("ftp.mrtienda.com") or die("ERROR DE FTP.");
+        if(@ftp_login($ftpConn,$tienda->usuarioftp,$tienda->passwdftp)){
+            $contents = ftp_nlist($ftpConn, "/Preciostienda");
+            $fpt = $contents[0];
+            $fpt = substr($contents[0], 15);
+            $fp = fopen(public_path("preciosDAM.csv"),"r");
+            $fpt = fopen(public_path("LNOMBRES.txt"),"r");
+            while(!feof($fp)){
+                $archivo = fgets($fp);
+                $lineas = explode(PHP_EOL, $archivo);
+                //print_r($lineas);
+                $precios = new Preciosdam();
+                $separada = array();
+                $i=0;
+                $j=0;
+                foreach($lineas as $row) {
+                    $separada[$i][$j]= explode(",", $row);
+                    if($separada[0][0][0] == $tienda->id_sap){
+                        $precios->id_sap = (int)$separada[0][0][0];
+                        $precios->sku = $separada[0][0][1];
+                        $precios->precioa = $separada[0][0][2];
+                        $precios->preciob = $separada[0][0][3];
+                        $precios->precioc = $separada[0][0][4];
+                        $precios->preciod = $separada[0][0][5];
+                        $precios->fecha = $separada[0][0][6];
+                        //$precios->save();
+                    }
+                    $i++;
+                    $j++;
+                }
+            }
+
+            while(!feof($fpt)){
+                $archivo = fgets($fpt);
+                $lineas = explode(PHP_EOL, $archivo);
+                $precios = new Preciostienda();
+                $separada = array();
+                $i=0;
+                $j=0;
+                foreach($lineas as $row) {
+                    $separada[$i][$j]= explode("\t", $row);
+                    $precios->id_sap = $tienda->id_sap;
+                    $precios->sku = $separada[0][0][0];
+                    $precios->precioa = $separada[0][0][1];
+                    $precios->preciob = $separada[0][0][2];
+                    $precios->precioc = $separada[0][0][3];
+                    $precios->preciod = $separada[0][0][4];
+                    //$precios->save();
+                    $i++;
+                    $j++;
+                }
+            }      
+        }else{
+            return redirect()->action([TiendaController::class, 'index'])->withErrors(['msg' => 'ERROR DE LOGIN EN FTP.']);
+        }
+        //return redirect()->action([TiendaController::class, 'index'])->withErrors(['msg' => 'TIENDA '.$tienda->nombre.' ACTUALIZADA']);    
+    }
+
+
+
+
+     public function actualizar($id)
+     {
+        $tienda = Tienda::find($id);
+        $ftpConn = ftp_connect("ftp.mrtienda.com") or die("ERROR DE FTP.");
+        //$local_file = $tienda->id_sap . 'LPRECIOSTEST.TXT';
+        //$handle = fopen($local_file, 'w');
+
+        if(@ftp_login($ftpConn,$tienda->usuarioftp,$tienda->passwdftp)){            
+            $contents = ftp_nlist($ftpConn, "");
+            $key = array_search('C181222.097', $contents);
+            $ftp_file = $contents[$key];
+            $local_file = 'CREMOTO.000';
+            $result = explode('.',$ftp_file);
+            $new_file = $result[0] . '.ZIP';
+            
+            $raiz = public_path() . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR . 'ZIP' .  DIRECTORY_SEPARATOR;
+            $ruta = public_path() . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR . 'ZIP' . DIRECTORY_SEPARATOR . $tienda->id_sap;
+            $loca = public_path() . DIRECTORY_SEPARATOR;
+            $zip = new ZipArchive();
+            //$respuesta = $zip->open($contents[$key], ZipArchive::RDONLY);
+            //print_r($respuesta);
+            if (ftp_get($ftpConn, $local_file, $ftp_file, FTP_BINARY)) {
+                //if (ftp_rename($ftpConn, $local_file, $new_file)) { 
+                echo 'si'; 
+            } else {
+                echo 'no';
+            } 
+        }
+    }
+
+
+    public function actualizadsr($id)
+     {
+        $tienda = Tienda::find($id);
+/*         while (($archivo = readdir($gestor)) !== false)  {
+            if ($archivo != "." && $archivo != "..") {  
+                if($archivo == "LPRECIOS.TXT"){                    
+                    echo  $archivo;
+                }     
+            }
+        }  */
+        $ftpConn = ftp_connect("ftp.mrtienda.com") or die("ERROR DE FTP.");
+        //$local_file = $tienda->id_sap . 'LPRECIOSTEST.TXT';
+        //$handle = fopen($local_file, 'w');
+
+        if(@ftp_login($ftpConn,$tienda->usuarioftp,$tienda->passwdftp)){            
+            $contents = ftp_nlist($ftpConn, "");
+            $key = array_search('C181222.097', $contents);
+            $ftp_file = $contents[$key];
+            $local_file = 'CREMOTO.000';
+            $result = explode('.',$ftp_file);
+            $new_file = $result[0] . '.ZIP';
+            
+            $raiz = public_path() . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR . 'ZIP' .  DIRECTORY_SEPARATOR;
+            $ruta = public_path() . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR . 'ZIP' . DIRECTORY_SEPARATOR . $tienda->id_sap;
+            $loca = public_path() . DIRECTORY_SEPARATOR;
+            $zip = new ZipArchive();
+            //$respuesta = $zip->open($contents[$key], ZipArchive::RDONLY);
+            //print_r($respuesta);
+            if (ftp_get($ftpConn, $local_file, $ftp_file, FTP_BINARY)) {
+                //if (ftp_rename($ftpConn, $local_file, $new_file)) {  
+                echo 's';
+            } else {
+                echo 'n';
+            } 
+                //Storage::disk('public')->put($local_file, fopen(public_path($local_file), 'r+'));
+
+                //$this->ftp->download('/tmp/awstats/'.$file, '/home/localusername/tmp/'.$file, 'ASCII', 0755);
+                //ftp_rename($ftpConn, $local_file, $new_file);
+
+                //Storage::disk('public')->put($local_file,"Ok");
+                //ftp_rename($ftpConn, $new_file, $local_file);
+
+                    //if (ftp_put($ftpConn, $local_file, $ruta))
+                    //echo 'Pachucon: '. $tienda->id_sap;
+
+                    //if(ftp_put($ftpConn, $local_file, $ruta)){}
+                    //if (ftp_get($ftpConn, $local_file, $ruta))
+                    //{ $zip->extractTo( $ruta ); }
+
+/*                     if (ftp_get($ftpConn, $new_file, $ruta)) {
+                        $zip->extractTo($ruta);
+                    } */
+/*                     if (ftp_get($ftpConn, $new_file, $ruta)) {
+                        $zip->extractTo( $ruta );
+                        $rutatxt = $ruta . DIRECTORY_SEPARATOR . $local_file . DIRECTORY_SEPARATOR . 'LPRECIOS.TXT';
+                        //$gestor = opendir($rutatxt);
+
+                        $file = fopen($rutatxt, "r");
+                        while(!feof($file)){
+                            $archivo = fgets($file);
+                            $lineas = explode(PHP_EOL, $archivo);
+                            $precios = new Preciostienda();
+                            $separada = array();
+                            $i=0;
+                            $j=0;
+                            foreach($lineas as $row) {
+                                $separada[$i][$j]= explode("\t", $row);
+                                $precios->id_sap = $tienda->id_sap;
+                                $precios->sku = $separada[0][0][0];
+                                $precios->precioa = $separada[0][0][1];
+                                $precios->preciob = $separada[0][0][2];
+                                $precios->precioc = $separada[0][0][3];
+                                $precios->preciod = $separada[0][0][4];
+                                $precios->save();
+                                $i++;
+                                $j++;
+                            } 
+                        }
+
+                    } else {
+                        echo 'ERROR EN LA DESCARGA DEL ARCHIVO ';
+                    }   */
+                               
+            } else { 
+                echo 'no';
+            }
+        //}        
+         
+        //if ($respuesta !== true){   } 
+         
+        //var_dump($respuesta);
+    }
+
+    public function actualizars($id)
+    {
+        $tienda = Tienda::find($id);
+        
+        $zip = new ZipArchive();
+        $respuesta = $zip->open("C010322.ZIP", ZipArchive::RDONLY);
+
+        $ftpConn = ftp_connect("ftp.mrtienda.com") or die("ERROR DE FTP.");
+        $local_file = $tienda->id_sap . 'LPRECIOSTEST.TXT';
+
+        $handle = fopen($local_file, 'w');
+
+        if(@ftp_login($ftpConn,$tienda->usuarioftp,$tienda->passwdftp)){
+            $contents = ftp_nlist($ftpConn, "*.TXT");
+            
+            $contxt = opendir("upload", "*.TXT");
+
+            if (ftp_fget($ftpConn, $handle, $contents[0], FTP_ASCII, 0)) 
+            {
+                $file = fopen($local_file, "r");
+
+                while(!feof($file)){
+                    $archivo = fgets($file);
+                    $lineas = explode(PHP_EOL, $archivo);
+                    $precios = new Preciostienda();
+                    $separada = array();
+                    $i=0;
+                    $j=0;
+                    foreach($lineas as $row) {
+                        $separada[$i][$j]= explode("\t", $row);
+                        $precios->id_sap = $tienda->id_sap;
+                        $precios->sku = $separada[0][0][0];
+                        $precios->precioa = $separada[0][0][1];
+                        $precios->preciob = $separada[0][0][2];
+                        $precios->precioc = $separada[0][0][3];
+                        $precios->preciod = $separada[0][0][4];
+                        $precios->save();
+                        $i++;
+                        $j++;
+                    } 
+                }
+            } else {
+                return redirect()->action([TiendaController::class, 'index'])->withErrors(['msg' => 'ERROR DE DESCARGA EN FTP.']);
+            }
+        }
+        else{
+            return redirect()->action([TiendaController::class, 'index'])->withErrors(['msg' => 'ERROR DE LOGIN EN FTP.']);
+        }
+        return redirect()->action([TiendaController::class, 'index'])->withErrors(['msg' => 'TIENDA '.$tienda->nombre.' ACTUALIZADA']);
+    }
+
